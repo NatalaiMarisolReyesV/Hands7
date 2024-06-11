@@ -1,0 +1,77 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+// Clase principal que contiene metodos para calcular medidas de tendencia central
+public class MedidasTendenciaCentral {
+    // Lista de enteros para almacenar los datos
+    private List<Integer> data;
+
+    // Constructor que recibe una lista de datos
+    public MedidasTendenciaCentral(List<Integer> data) {
+        this.data = data;
+    }
+
+    // Metodo para calcular la media (promedio) de los datos
+    public double calcularMedia() {
+        int suma = 0;
+        // Sumar todos los datos
+        for (int dato : data) {
+            suma += dato;
+        }
+        // Dividir la suma por el numero de datos para obtener la media
+        return suma / (double)data.size();
+    }
+
+    // Metodo para calcular la mediana de los datos
+    public double calcularMediana() {
+        // Ordenar los datos de menor a mayor
+        Collections.sort(data);
+        int n = data.size();
+        // Si el numero de datos es par, la mediana es el promedio de los dos valores centrales
+        if (n % 2 == 0) {
+            int medio1 = n / 2 - 1;
+            int medio2 = n / 2;
+            return ((double)data.get(medio1) + data.get(medio2)) / 2;
+        } else {
+            // Si el numero de datos es impar, la mediana es el valor central
+            int medio = n / 2;
+            return data.get(medio);
+        }
+    }
+
+    // Metodo para calcular la moda (valor(es) mas frecuente(s)) de los datos
+    public List<Integer> calcularModa() {
+        List<Integer> moda = new ArrayList<>();
+        int maxFrecuencia = 0;
+        // Para cada dato, contar su frecuencia
+        for (int dato : data) {
+            int frecuencia = Collections.frequency(data, dato);
+            // Si la frecuencia es mayor que la maxima actual, este dato es la nueva moda
+            if (frecuencia > maxFrecuencia) {
+                moda.clear();
+                moda.add(dato);
+                maxFrecuencia = frecuencia;
+            } else if (frecuencia == maxFrecuencia && !moda.contains(dato)) {
+                // Si la frecuencia es igual a la maxima y el dato no esta en la lista, es otra moda
+                moda.add(dato);
+            }
+        }
+        return moda;
+    }
+
+    // Metodo principal para probar la clase
+    public static void main(String[] args) {
+        // Crear una lista de datos de prueba
+        List<Integer> data = new ArrayList<>();
+        Collections.addAll(data, 38,15,10,12,62,46,25,56,27,24,23,21,20,25,38,27,48,35,50,65,59,58,47,42,37,35,32,40,28,14,12,24,66,73,72,70,68,65,54,48,34,33,21,19,61,59,47,46,30,30);
+        
+        // Crear una instancia de MedidasTendenciaCentral con los datos
+        MedidasTendenciaCentral medidas = new MedidasTendenciaCentral(data);
+        
+        // Calcular y mostrar las medidas de tendencia central
+        System.out.println("MEDIA: " + medidas.calcularMedia());
+        System.out.println("MEDIANA: " + medidas.calcularMediana());
+        System.out.println("MODA: " + medidas.calcularModa());
+    }
+}

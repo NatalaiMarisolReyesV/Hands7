@@ -1,0 +1,129 @@
+import java.util.Arrays;
+
+class PolynomialRegression {
+    private final int degree;
+    private double[] coefficients;
+
+    // Constructor que inicializa el grado del polinomio y crea un arreglo para los coeficientes
+    public PolynomialRegression(int degree) {
+        this.degree = degree;
+        this.coefficients = new double[degree + 1];
+    }
+
+    public void fit(double[] x, double[] y) {
+        int n = x.length;
+        double[][] X = new double[n][degree + 1];
+        double[] Y = y;
+
+        // Construir la matriz X
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= degree; j++) {
+                X[i][j] = Math.pow(x[i], j);
+            }
+        }
+
+        double[][] XT = transpose(X);
+        double[] XTY = multiplyVectorMatrix(XT, Y);
+        coefficients = gaussElimination(multiply(XT, X), XTY);
+    }
+
+    // Metodos
+    public double predict(double x) {
+        double y = 0;
+        for (int i = 0; i <= degree; i++) {
+            y += coefficients[i] * Math.pow(x, i);
+        }
+        return y;
+    }
+
+    public double[] getCoefficients() {
+        return coefficients;
+    }
+
+    private double[][] transpose(double[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        double[][] transpose = new double[n][m];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                transpose[j][i] = matrix[i][j];
+            }
+        }
+        return transpose;
+    }
+
+    private double[][] multiply(double[][] A, double[][] B) {
+        int m = A.length;
+        int n = B[0].length;
+        int p = B.length;
+        double[][] C = new double[m][n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < p; k++) {
+                    C[i][j] += A[i][k] * B[k][j];
+                }
+            }
+        }
+        return C;
+    }
+
+    private double[] multiplyVectorMatrix(double[][] A, double[] B) {
+        int m = A.length;
+        int n = B.length;
+        double[] C = new double[m];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                C[i] += A[i][j] * B[j];
+            }
+        }
+        return C;
+    }
+
+    private double[] gaussElimination(double[][] A, double[] B) {
+        int n = B.length;
+        double[][] augmentedMatrix = new double[n][n + 1];
+
+        // Construir la matriz aumentada
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                augmentedMatrix[i][j] = A[i][j];
+            }
+            augmentedMatrix[i][n] = B[i];
+        }
+
+        // Eliminacion gaussiana
+        for (int i = 0; i < n - 1; i++) {
+            for (int k = i + 1; k < n; k++) {
+                double factor = augmentedMatrix[k][i] / augmentedMatrix[i][i];
+                for (int j = i; j < n + 1; j++) {
+                    augmentedMatrix[k][j] -= factor * augmentedMatrix[i][j];
+                }
+            }
+        }
+
+        double[] solution = new double[n];
+        for (int i = n - 1; i >= 0; i--) {
+            double sum = 0.0;
+            for (int j = i + 1; j < n; j++) {
+                sum += augmentedMatrix[i][j] * solution[j];
+            }
+            solution[i] = (augmentedMatrix[i][n] - sum) / augmentedMatrix[i][i];
+        }
+
+        return solution;
+    }
+
+    public static void main(String[] args) {
+        double[] x = {1, 2, 3, 4, 5};
+        double[] y = {1, 4, 9, 16, 25};
+
+        PolynomialRegression regression = new PolynomialRegression(2);
+        regression.fit(x, y);
+
+        double[] coefficients = regression.getCoefficients();
+        System.out.println("Coeficientes: " + Arrays.toString(coefficients));
+
+        double predictedY = regression.predict(6);
+        System.out.println("Valor predicho para x = 6: " + predictedY);
+    }
+}
